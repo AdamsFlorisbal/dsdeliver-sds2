@@ -1,30 +1,33 @@
 import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
-import AsyncSelect from 'react-select/async'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import AsyncSelect from 'react-select/async';
 import { fetchLocalMapBox } from '../api';
-import { OrderLocationdata } from './types';
+import { OrderLocationData } from './types';
 
 const initialPosition = {
-    lat:-30.0577248,
-    lng:-51.2069035
+    lat: -18.9110558, 
+    lng: -48.26201
 }
 
 type Place = {
     label?: string;
     value?: string;
     position: {
-      lat: number;
-      lng: number;
-    };
-  }
-  type Props = {
-    onChangeLocation: (location: OrderLocationdata) => void
-  }  
+        lat: number;
+        lng: number;
+    }
 
-function OrderLocation({ onChangeLocation }: Props) {
+}
+
+type Props = {
+    onChangeLocation: (location: OrderLocationData) => void;
+}
+
+function OrderLocation( {onChangeLocation}: Props) {
     const [address, setAddress] = useState<Place>({
         position: initialPosition
-    });
+    })
+
     const loadOptions = async (inputValue: string, callback: (places: Place[]) => void) => {
         const response = await fetchLocalMapBox(inputValue);
       
@@ -35,8 +38,7 @@ function OrderLocation({ onChangeLocation }: Props) {
             position: {
               lat: item.center[1],
               lng: item.center[0]
-            },
-            place: item.place_name,
+            }
           });
         });
       
@@ -46,20 +48,21 @@ function OrderLocation({ onChangeLocation }: Props) {
       const handleChangeSelect = (place: Place) => {
         setAddress(place);
         onChangeLocation({
-          latitude: place.position.lat,
-          longitude: place.position.lng,
-          address: place.label!
+        latitude: place.position.lat,
+        longitude: place.position.lng,
+        address: place.label!
         });
       };
+
     return (
         <div className="order-location-container">
             <div className="order-location-content">
                 <h3 className="order-location-title">
                     Selecione onde o pedido deve ser entregue:
-            </h3>
+                </h3>
                 <div className="filter-container">
-                    <AsyncSelect
-                        placeholder="Digite um emdereço para entregar o pedido "
+                    <AsyncSelect 
+                        placeholder="Digite um endereço para entregar o pedido"
                         className="filter"
                         loadOptions={loadOptions}
                         onChange={value => handleChangeSelect(value as Place)}
@@ -67,10 +70,10 @@ function OrderLocation({ onChangeLocation }: Props) {
                 </div>
                 <MapContainer 
                     center={address.position} 
-                    zoom={13} 
+                    zoom={15} 
                     key={address.position.lat}
                     scrollWheelZoom
-                >
+                    >
                     <TileLayer
                         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -82,6 +85,7 @@ function OrderLocation({ onChangeLocation }: Props) {
                     </Marker>
                 </MapContainer>
             </div>
+
         </div>
     )
 }
